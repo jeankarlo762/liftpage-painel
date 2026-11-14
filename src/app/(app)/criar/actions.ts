@@ -7,14 +7,12 @@ import { isNicheAllowed } from "@/lib/niches";
 import { hasActiveAccess, planFeatures } from "@/lib/plans";
 import { briefingSchema, buildPrompt } from "@/lib/prompt";
 import { assetPublicPath } from "@/lib/services/pipeline";
+import { slugify } from "@/lib/site";
 
 const MAX_FILE = 4 * 1024 * 1024;
 const MAX_IMAGES = 8;
 const OK_TYPES = /^image\/(png|jpeg|webp|gif|svg\+xml)$/;
 
-function slugify(s: string) {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "pagina";
-}
 
 export async function createDraft(form: FormData): Promise<{ error: string } | void> {
   const user = await requireUser();
@@ -53,6 +51,7 @@ export async function createDraft(form: FormData): Promise<{ error: string } | v
     if (file.size > MAX_FILE) return { error: `${file.name} passa de 4 MB` };
   }
 
+  const hostOnLiftpage = form.get("hostOnLiftpage") !== "false";
   let slug = slugify(b.businessName);
   if (await db.page.findUnique({ where: { slug } })) slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -63,6 +62,7 @@ export async function createDraft(form: FormData): Promise<{ error: string } | v
       clientName,
       domain: domain || null,
       amountPaid,
+      hostedByPlatform: hostOnLiftpage,
       slug,
       niche: b.niche,
       siteType: b.siteType,

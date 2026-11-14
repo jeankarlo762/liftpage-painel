@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/site";
 import { requireUser } from "@/lib/auth";
 import { NICHES } from "@/lib/niches";
 import { PLANS, PLAN_ORDER, planFeatures } from "@/lib/plans";
@@ -17,7 +18,7 @@ export default async function CriarPage() {
         <h1 className="h1">Criar página</h1>
         <p className="muted">Responda o questionário e geramos o prompt da sua landing page.</p>
       </div>
-      <Wizard niches={niches} allowSections={plan.sections} planLabel={plan.label} />
+      <Wizard niches={niches} allowSections={plan.sections} planLabel={plan.label} siteHost={siteUrl().replace(/^https?:\/\//, "")} />
     </div>
   );
 }

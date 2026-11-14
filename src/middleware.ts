@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "./lib/session";
 
+// Rotas do painel que pedem login. Qualquer outro caminho (/{empresa}) é página de cliente hospedada, pública.
+const APP = ["dashboard", "criar", "paginas", "perfil", "assinatura", "api"];
 // /api/checkout aceita quem ainda não tem conta (vem da landing page, paga e depois cria o login).
 const PUBLIC = ["/login", "/cadastro", "/api/track", "/api/webhooks", "/api/checkout"];
 
@@ -8,6 +10,8 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (pathname === "/landing.html") return NextResponse.redirect(new URL("/", req.url));
   if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  const first = pathname.split("/")[1] ?? "";
+  if (first && !APP.includes(first)) return NextResponse.next();
   const userId = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
   if (!userId) {
     // Quem não está logado vê a landing page na raiz do site.

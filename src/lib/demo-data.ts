@@ -16,12 +16,31 @@ const DEMO_PAGES = [
   { client: "Renata Albuquerque", name: "Pousada Mar Azul", niche: "hotel-pousada", domain: "pousadamarazul.com.br", paid: 1480.97 },
 ];
 
+// Mês (0 = mês atual) e dia em que cada página foi vendida: a receita cresce mês a mês nos últimos 6 meses.
+const SOLD = [
+  [3, 8], [0, 3], [0, 9], [4, 20], [1, 6], [1, 22], [3, 15], [5, 18], [2, 10], [5, 6], [4, 9], [2, 24],
+] as const;
+const day = 86400_000;
+function soldAt(i: number) {
+  const [monthsAgo, dom] = SOLD[i];
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() - monthsAgo, monthsAgo === 0 ? Math.min(dom, now.getDate()) : dom, 12);
+  return d;
+}
+const demoSlug = (d: (typeof DEMO_PAGES)[number]) => `demo-${d.domain.split(".")[0]}`;
+
 export async function ensureDemoPages(db: PrismaClient, userId: string) {
-  if ((await db.page.count({ where: { userId, slug: { startsWith: "demo-" } } })) > 0) return;
-  const day = 86400_000;
+  if ((await db.page.count({ where: { userId, slug: { startsWith: "demo-" } } })) > 0) {
+    // Mantém as datas das vendas fictícias alinhadas com o gráfico de receita.
+    for (const [i, d] of DEMO_PAGES.entries()) {
+      const at = soldAt(i);
+      await db.page.updateMany({ where: { userId, slug: demoSlug(d) }, data: { createdAt: at, publishedAt: at } });
+    }
+    return;
+  }
   for (const [i, d] of DEMO_PAGES.entries()) {
-    const slug = `demo-${d.domain.split(".")[0]}`;
-    const publishedAt = new Date(Date.now() - (60 - i * 4) * day);
+    const slug = demoSlug(d);
+    const publishedAt = soldAt(i);
     const page = await db.page.upsert({
       where: { slug },
       update: { userId },

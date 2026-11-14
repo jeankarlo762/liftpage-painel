@@ -134,7 +134,8 @@ model Page {
   railwayServiceId String?
   railwayEnvironmentId String?
   url         String?
-  hostedByPlatform Boolean @default(false)
+  hostedByPlatform Boolean @default(false) // true: servida pela própria LiftPage em /{slug}
+  html        String?    @db.Text // HTML final das páginas hospedadas na LiftPage
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   publishedAt DateTime?

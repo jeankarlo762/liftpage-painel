@@ -1,7 +1,7 @@
 import type { PageStatus } from "@prisma/client";
 import { db } from "../db";
-import { decrypt } from "../crypto";
 import { planFeatures } from "../plans";
+import { hostedUrl } from "../site";
 import { buildSiteFiles } from "./bundle";
 import { extractHtml, generateLandingHtml } from "./generator";
 import { createRepoWithFiles } from "./github";
@@ -21,33 +21,18 @@ async function setStatus(pageId: string, status: PageStatus, note: string, extra
   });
 }
 
-// Descobre com quais credenciais publicar: plataforma (Premium) ou contas conectadas do cliente.
-export async function hostingCredentials(userId: string, autoHosting: boolean) {
-  const pgh = process.env.PLATFORM_GITHUB_TOKEN;
-  const prw = process.env.PLATFORM_RAILWAY_TOKEN;
-  // Premium usa as contas da plataforma; enquanto elas não estiverem configuradas, usa as contas que o cliente conectou.
-  if (autoHosting && pgh && prw) {
-    const gh = pgh;
-    const rw = prw;
-    return {
-      github: gh,
-      githubOwner: process.env.PLATFORM_GITHUB_OWNER || undefined,
-      railway: rw,
-      workspaceId: process.env.PLATFORM_RAILWAY_WORKSPACE_ID || undefined,
-      platform: true,
-    };
-  }
-  const conns = await db.connection.findMany({ where: { userId } });
-  const gh = conns.find((c) => c.provider === "github");
-  const rw = conns.find((c) => c.provider === "railway");
-  if (!gh || !rw) {
-    throw new Error(
-      autoHosting
-        ? "A hospedagem automática ainda não foi configurada pela LiftPage. Por enquanto, conecte seu GitHub e seu Railway em Configurações para publicar."
-        : "Conecte o GitHub e o Railway em Configurações antes de publicar.",
-    );
-  }
-  return { github: decrypt(gh.tokenEnc), githubOwner: undefined, railway: decrypt(rw.tokenEnc), workspaceId: undefined, platform: false };
+// Todas as páginas são publicadas nas contas de GitHub e Railway da plataforma (variáveis do servidor).
+export async function hostingCredentials() {
+  const github = process.env.PLATFORM_GITHUB_TOKEN;
+  const railway = process.env.PLATFORM_RAILWAY_TOKEN;
+  if (!github || !railway) throw new Error("A publicação ainda não foi configurada pela LiftPage. Fale com o suporte.");
+  return {
+    github,
+    githubOwner: process.env.PLATFORM_GITHUB_OWNER || undefined,
+    railway,
+    workspaceId: process.env.PLATFORM_RAILWAY_WORKSPACE_ID || undefined,
+    platform: true,
+  };
 }
 
 // Fluxo completo de publicação. Roda em segundo plano; o status fica salvo na página.
@@ -60,7 +45,8 @@ export async function publishPage(pageId: string, pastedHtml?: string) {
     const features = planFeatures(page.user.subscription?.plan);
     const assets = page.assets.map((a) => ({ ...a, publicPath: assetPublicPath(a) }));
 
-    const creds = await hostingCredentials(page.userId, features.autoHosting);
+    // Hospedada na LiftPage: não precisa de GitHub nem Railway.
+    const creds = page.hostedByPlatform ? null : await hostingCredentials();
     let html: string;
     if (pastedHtml) {
       html = extractHtml(pastedHtml);
@@ -73,7 +59,13 @@ export async function publishPage(pageId: string, pastedHtml?: string) {
       );
     }
 
-    await setStatus(pageId, "PUSHING", "Criando repositório no GitHub", { hostedByPlatform: creds.platform });
+    if (!creds) {
+      const url = hostedUrl(page.slug);
+      await setStatus(pageId, "LIVE", `No ar em ${url}`, { html, url, publishedAt: new Date(), error: null });
+      return;
+    }
+
+    await setStatus(pageId, "PUSHING", "Criando repositório no GitHub");
     const appUrl = process.env.APP_URL || "http://localhost:3000";
     const files = buildSiteFiles({
       slug: page.slug,

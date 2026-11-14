@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
-import { CreditCard, LayoutDashboard, LogOut, Menu, Rocket, Settings, Sparkles, User, X } from "lucide-react";
+import { CreditCard, LayoutDashboard, LogOut, Menu, Rocket, Sparkles, User, X } from "lucide-react";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/criar", label: "Criar página", icon: Sparkles },
   { href: "/paginas", label: "Páginas publicadas", icon: Rocket },
-  { href: "/configuracoes", label: "Configurações", icon: Settings },
   { href: "/perfil", label: "Perfil", icon: User },
   { href: "/assinatura", label: "Assinatura", icon: CreditCard },
 ];

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Bot, Check, ClipboardCopy, Loader2, Upload } from "lucide-react";
 import type { PageStatus } from "@prisma/client";
-import { deleteDraft, publishPasted, publishWithAgent, savePrompt } from "../actions";
+import { publishPasted, publishWithAgent, savePrompt } from "../actions";
 
 const BUSY: PageStatus[] = ["GENERATING", "PUSHING", "DEPLOYING"];
 const STAGES: { key: PageStatus; label: string }[] = [
@@ -97,7 +97,7 @@ export function PublishPanel(p: {
           <>
             {!p.canPublish && (
               <p className="rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
-                Conecte seu GitHub e seu Railway em <Link href="/configuracoes" className="font-semibold underline">Configurações</Link> para publicar.
+                A publicação ainda está sendo configurada pela LiftPage. Volte em instantes.
               </p>
             )}
             {p.hasAgent ? (
@@ -119,11 +119,6 @@ export function PublishPanel(p: {
                   <Upload className="h-4 w-4" /> {pending ? "Enviando…" : "Publicar página"}
                 </button>
               </div>
-            )}
-            {(p.status === "DRAFT" || p.status === "FAILED") && (
-              <button className="text-sm text-ink-500 hover:text-red-300" disabled={pending} onClick={() => start(async () => { await deleteDraft(p.pageId); router.push("/paginas"); })}>
-                Excluir rascunho
-              </button>
             )}
           </>
         )}

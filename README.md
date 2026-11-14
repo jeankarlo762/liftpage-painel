@@ -19,7 +19,6 @@ Painel onde o cliente responde um questionário, recebe um prompt pronto e publi
 - **Dashboard**: receita total (soma do que os clientes pagaram), domínios no ar, visitas, visitantes únicos, cliques em CTA, gráfico de 30 dias.
 - **Criar página**: questionário em 7 passos (cliente com nome, domínio e valor pago, nicho, tipo de site, modelo, cores, logo e imagens, dados do negócio) → gera o prompt.
 - **Páginas publicadas** (com contador no menu): cliente, domínio, valor pago, status e visitas; o detalhe mostra o prompt, o botão de criar ou publicar, o progresso e as estatísticas (visitas, conversão, CTAs mais clicados).
-- **Configurações**: conectar GitHub (OAuth ou token) e Railway (token). Tokens ficam criptografados (AES-256-GCM).
 - **Perfil**: dados de cadastro e troca de senha.
 - **Assinatura**: plano atual, cobrança (mensal ou vitalício), status, próxima cobrança (o vitalício não tem) e botões de compra pelo Stripe e link para gerenciar ou cancelar o mensal. Não existe plano anual.
 
@@ -37,6 +36,12 @@ Painel onde o cliente responde um questionário, recebe um prompt pronto e publi
 Os limites são conferidos no servidor, não só na tela. Sem acesso ativo (mensal vencido ou cancelado) o cliente não cria nem publica páginas; o vitalício ativo nunca expira.
 
 Preços em `src/lib/plans.ts`: Pro R$ 49,90/mês e Premium R$ 149,90 vitalício (pagamento único). Não existe plano Basic nem anual.
+
+## Hospedagem
+
+- **Hospedar na LiftPage** (padrão): a página fica em `{PUBLIC_SITE_URL}/{nome-da-empresa}`, servida pelo próprio painel (rota `src/app/[slug]`), em sandbox isolado do painel. Não precisa de GitHub nem Railway.
+- **Domínio próprio**: repositório e serviço criados com as contas da plataforma (`PLATFORM_GITHUB_TOKEN`, `PLATFORM_GITHUB_OWNER`, `PLATFORM_RAILWAY_TOKEN`, `PLATFORM_RAILWAY_WORKSPACE_ID`).
+- O agente precisa de `ANTHROPIC_API_KEY`.
 
 ## Fluxo "Criar página"
 

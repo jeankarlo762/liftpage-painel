@@ -10,6 +10,8 @@ import { planFeatures } from "@/lib/plans";
 import { TEMPLATE_INFO } from "@/lib/prompt";
 import { pageStats } from "@/lib/stats";
 import { PublishPanel } from "./PublishPanel";
+import { DeleteButton } from "../DeleteButton";
+import { hostedUrl } from "@/lib/site";
 
 export default async function PageDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,8 +27,8 @@ export default async function PageDetail({ params }: { params: Promise<{ id: str
     orderBy: { _count: { label: "desc" } },
     take: 5,
   });
-  const connected = new Set(user.connections.map((c) => c.provider));
-  const canPublish = plan.autoHosting || (connected.has("github") && connected.has("railway"));
+  // Publicação sempre nas contas da plataforma.
+  const canPublish = page.hostedByPlatform || !!(process.env.PLATFORM_GITHUB_TOKEN && process.env.PLATFORM_RAILWAY_TOKEN);
 
   return (
     <div className="space-y-6">
@@ -35,10 +37,14 @@ export default async function PageDetail({ params }: { params: Promise<{ id: str
           <Link href="/paginas" className="muted hover:text-ink-900">← Páginas</Link>
           <h1 className="h1 mt-1 flex items-center gap-3">{page.name} <StatusBadge status={page.status} /></h1>
           <p className="muted">
-            {nicheLabel(page.niche)} · {page.siteType === "SINGLE" ? "Página única" : "Com sessões"} · {TEMPLATE_INFO[page.template].label}
+            {page.clientName ? `${page.clientName} · ` : ""}{nicheLabel(page.niche)} · {page.siteType === "SINGLE" ? "Página única" : "Com sessões"} · {TEMPLATE_INFO[page.template].label}
+          </p>
+          <p className="muted mt-1">
+            {page.hostedByPlatform ? <>Hospedada na LiftPage em <b className="text-ink-900">{hostedUrl(page.slug).replace(/^https?:\/\//, "")}</b></> : "Hospedagem própria (GitHub + Railway)"}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <DeleteButton pageId={page.id} name={page.name} redirectTo="/paginas" />
           {page.repoUrl && <a className="btn-ghost" href={page.repoUrl} target="_blank"><FolderGit2 className="h-4 w-4" /> Repositório</a>}
           {page.url && <a className="btn-primary" href={page.url} target="_blank"><ExternalLink className="h-4 w-4" /> Ver página</a>}
         </div>

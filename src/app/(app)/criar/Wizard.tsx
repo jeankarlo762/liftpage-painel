@@ -18,7 +18,7 @@ const PALETTES = [
   ["#0e7490", "#fef3c7", "#1e293b"],
 ];
 
-export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; allowSections: boolean; planLabel: string }) {
+export function Wizard({ niches, allowSections, planLabel, siteHost }: { niches: Niche[]; allowSections: boolean; planLabel: string; siteHost: string }) {
   const [step, setStep] = useState(0);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
     sections: ["sobre", "servicos", "depoimentos", "faq", "contato"],
     extra: "",
   });
-  const [client, setClient] = useState({ name: "", domain: "", paid: "" });
+  const [client, setClient] = useState({ name: "", domain: "", paid: "", host: true });
   const paidValue = parseMoney(client.paid);
   const set = <K extends keyof Briefing>(k: K, v: Briefing[K]) => setB((prev) => ({ ...prev, [k]: v }));
 
@@ -66,7 +66,8 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
     const fd = new FormData();
     fd.set("briefing", JSON.stringify(b));
     fd.set("clientName", client.name);
-    fd.set("domain", client.domain);
+    fd.set("domain", client.host ? "" : client.domain);
+    fd.set("hostOnLiftpage", String(client.host));
     fd.set("amountPaid", String(paidValue ?? ""));
     if (logo) fd.set("logo", logo);
     images.forEach((f) => fd.append("images", f));
@@ -107,7 +108,26 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
             </div>
             <Field label="Nome do cliente *" value={client.name} onChange={(v) => setClient({ ...client, name: v })} placeholder="Ex.: Carlos Silva" />
             <Field label="Valor pago (R$) *" value={client.paid} onChange={(v) => setClient({ ...client, paid: v })} placeholder="Ex.: 1.200,00" />
-            <Field className="sm:col-span-2" label="Domínio da página" value={client.domain} onChange={(v) => setClient({ ...client, domain: v })} placeholder="Ex.: barbeariadocarlos.com.br" />
+            <div className="space-y-2 sm:col-span-2">
+              <span className="label">Onde a página vai ficar</span>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Choice
+                  active={client.host}
+                  onClick={() => setClient({ ...client, host: true })}
+                  title="Hospedar na LiftPage"
+                  desc={`Fica no ar em ${siteHost}/nome-da-empresa, sem configurar nada.`}
+                />
+                <Choice
+                  active={!client.host}
+                  onClick={() => setClient({ ...client, host: false })}
+                  title="Domínio próprio"
+                  desc="Publica em um repositório e serviço próprios e usa o domínio do cliente."
+                />
+              </div>
+            </div>
+            {!client.host && (
+              <Field className="sm:col-span-2" label="Domínio da página" value={client.domain} onChange={(v) => setClient({ ...client, domain: v })} placeholder="Ex.: barbeariadocarlos.com.br" />
+            )}
           </section>
         )}
 

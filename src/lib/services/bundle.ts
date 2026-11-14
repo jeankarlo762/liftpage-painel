@@ -3,7 +3,7 @@ import type { RepoFile } from "./github";
 // Script de estatísticas injetado em toda página publicada: conta visitas e cliques nos CTAs.
 export function trackingSnippet(appUrl: string, pageId: string) {
   return `<script>(function(){var u=${JSON.stringify(appUrl.replace(/\/$/, "") + "/api/track")},p=${JSON.stringify(pageId)};
-var v=localStorage.getItem("lpv");if(!v){v=Math.random().toString(36).slice(2);try{localStorage.setItem("lpv",v)}catch(e){}}
+var v;try{v=localStorage.getItem("lpv")}catch(e){}if(!v){v=Math.random().toString(36).slice(2);try{localStorage.setItem("lpv",v)}catch(e){}}
 function s(t,l){try{navigator.sendBeacon(u,JSON.stringify({pageId:p,type:t,path:location.pathname,referrer:document.referrer,visitorId:v,label:l}))}catch(e){}}
 s("view");document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("[data-cta],a[href*='wa.me']");if(a)s("click",a.getAttribute("data-cta")||a.getAttribute("href"))});})();</script>`;
 }

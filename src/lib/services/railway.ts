@@ -110,3 +110,8 @@ export async function customDomainStatus(
   );
   return d.domains.customDomains.find((c) => c.id === domainId) ?? null;
 }
+
+// Apaga o projeto do Railway de uma página excluída.
+export async function deleteProject(token: string, projectId: string) {
+  await railwayGql(token, `mutation($id: String!) { projectDelete(id: $id) }`, { id: projectId });
+}

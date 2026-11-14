@@ -5,6 +5,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { brl, toNumber } from "@/lib/money";
 import { nicheLabel } from "@/lib/niches";
+import { hostedUrl } from "@/lib/site";
+import { DeleteButton } from "./DeleteButton";
 
 export default async function PaginasPage() {
   const user = await requireUser();
@@ -36,11 +38,14 @@ export default async function PaginasPage() {
                 <th className="px-6 py-3 text-right font-medium">Valor pago</th>
                 <th className="px-6 py-3 font-medium">Status</th>
                 <th className="px-6 py-3 text-right font-medium">Visitas</th>
+                <th className="px-6 py-3"><span className="sr-only">Ações</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-linha">
               {pages.map((p) => {
-                const host = p.domain ?? p.domains[0]?.hostname ?? p.url?.replace(/^https?:\/\//, "") ?? null;
+                const host = p.hostedByPlatform
+                  ? hostedUrl(p.slug).replace(/^https?:\/\//, "")
+                  : p.domain ?? p.domains[0]?.hostname ?? p.url?.replace(/^https?:\/\//, "") ?? null;
                 return (
                   <tr key={p.id} className="hover:bg-white/5">
                     <td className="px-6 py-4 font-semibold">{p.clientName ?? "—"}</td>
@@ -60,6 +65,7 @@ export default async function PaginasPage() {
                     <td className="px-6 py-4 text-right font-semibold">{p.amountPaid != null ? brl(toNumber(p.amountPaid)) : "—"}</td>
                     <td className="px-6 py-4"><StatusBadge status={p.status} /></td>
                     <td className="px-6 py-4 text-right font-semibold">{p._count.events.toLocaleString("pt-BR")}</td>
+                    <td className="px-6 py-4 text-right"><DeleteButton pageId={p.id} name={p.name} /></td>
                   </tr>
                 );
               })}
