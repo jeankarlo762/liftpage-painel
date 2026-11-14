@@ -8,7 +8,6 @@ datasource db {
 }
 
 enum Plan {
-  BASIC
   PRO
   PREMIUM
 }
@@ -74,12 +73,13 @@ model Subscription {
   id               String             @id @default(cuid())
   userId           String             @unique
   user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan             Plan               @default(BASIC)
+  plan             Plan               @default(PRO)
   status           SubscriptionStatus @default(TRIAL)
   billing          Billing            @default(MONTHLY)
   currentPeriodEnd DateTime?          // vazio no vitalício
-  provider         String?            // ex.: "asaas", "stripe", "mercadopago"
-  providerRef      String?            // id da assinatura no gateway
+  provider         String?            // "stripe"
+  providerRef      String?            // Stripe: id da assinatura (mensal) ou do pagamento (vitalício)
+  stripeCustomerId String?
   paymentMethod    String?            // ex.: "Cartão final 4242", "Pix"
   updatedAt        DateTime           @updatedAt
 }

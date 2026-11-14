@@ -13,20 +13,9 @@ export type PlanFeatures = {
 };
 
 // Regras dos planos em um só lugar. Cobrança: mensal ou vitalício (sem plano anual).
-// Preços definidos pelo Grupo MK em 14/11/2026: Pro R$ 49,90 mensal e Premium R$ 149,90 vitalício.
-// Basic ainda a definir. null = forma de cobrança não oferecida naquele plano.
+// Planos definidos pelo Grupo MK em 14/11/2026 (o Basic foi removido):
+// Pro R$ 49,90 por mês e Premium R$ 149,90 vitalício. null = forma de cobrança não oferecida no plano.
 export const PLANS: Record<Plan, PlanFeatures> = {
-  BASIC: {
-    label: "Basic",
-    monthlyPrice: null,
-    lifetimePrice: null,
-    maxNiches: 15,
-    sections: false,
-    agent: false,
-    autoHosting: false,
-    prospecting: false,
-    highlights: ["15 nichos", "Landing page de página única", "Prompt pronto para colar no Claude", "Publicação no seu GitHub + Railway"],
-  },
   PRO: {
     label: "Pro",
     monthlyPrice: 49.9,
@@ -51,10 +40,10 @@ export const PLANS: Record<Plan, PlanFeatures> = {
   },
 };
 
-export const PLAN_ORDER: Plan[] = ["BASIC", "PRO", "PREMIUM"];
+export const PLAN_ORDER: Plan[] = ["PRO", "PREMIUM"];
 
 export function planFeatures(plan: Plan | null | undefined): PlanFeatures {
-  return PLANS[plan ?? "BASIC"];
+  return PLANS[plan ?? "PRO"];
 }
 
 export const BILLING_LABEL: Record<Billing, string> = { MONTHLY: "Mensal", LIFETIME: "Vitalício" };
@@ -65,7 +54,7 @@ export function formatPrice(v: number | null, billing: Billing) {
   return billing === "MONTHLY" ? `R$ ${n}/mês` : `R$ ${n} pagamento único`;
 }
 
-// Acesso liberado? Vitalício ativo nunca expira; mensal vale até o fim do período pago (ou em teste).
+// Acesso liberado? Sem compra não há acesso. Vitalício ativo nunca expira; mensal vale até o fim do período pago.
 export function hasActiveAccess(sub: Pick<Subscription, "status" | "billing" | "currentPeriodEnd"> | null | undefined) {
   if (!sub) return false;
   if (sub.status === "CANCELED") return false;

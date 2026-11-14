@@ -42,7 +42,7 @@ export async function generateLandingHtml(prompt: string, images: GenImage[]) {
   return extractHtml(text);
 }
 
-// Aceita a resposta do agente ou o código colado pelo usuário (Basic/Pro), com ou sem cerca de código.
+// Aceita a resposta do agente ou o código colado pelo usuário (Pro), com ou sem cerca de código.
 export function extractHtml(raw: string) {
   const fenced = raw.match(/```(?:html)?\s*([\s\S]*?)```/i);
   const body = (fenced ? fenced[1] : raw).trim();

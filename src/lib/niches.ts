@@ -2,9 +2,9 @@ import type { Plan } from "@prisma/client";
 import { PLANS } from "./plans";
 
 // Catálogo de 50 nichos. A ordem define o que cada plano libera:
-// os 15 primeiros no Basic, os 30 primeiros no Pro e todos os 50 no Premium.
+// os 30 primeiros no Pro e todos os 50 no Premium.
 export const NICHES: { id: string; label: string }[] = [
-  // Basic (1–15)
+  // Pro (1–30)
   { id: "restaurante", label: "Restaurante" },
   { id: "salao-beleza", label: "Salão de beleza" },
   { id: "barbearia", label: "Barbearia" },
@@ -20,7 +20,6 @@ export const NICHES: { id: string; label: string }[] = [
   { id: "nutricionista", label: "Nutricionista" },
   { id: "fotografia", label: "Fotografia" },
   { id: "arena-esportiva", label: "Arena / quadra esportiva" },
-  // Pro (16–30)
   { id: "clinica-estetica", label: "Clínica de estética" },
   { id: "personal-trainer", label: "Personal trainer" },
   { id: "escola-idiomas", label: "Escola de idiomas" },

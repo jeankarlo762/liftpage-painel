@@ -5,11 +5,12 @@ import { useActionState } from "react";
 import { BRAND } from "@/lib/brand";
 import { login, signup } from "./actions";
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
   const [state, action, pending] = useActionState(mode === "login" ? login : signup, undefined);
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <form action={action} className="card w-full max-w-sm space-y-4">
+        {next && <input type="hidden" name="next" value={next} />}
         <div>
           <div className="mb-6 flex items-center gap-2 font-display font-black uppercase text-ink-900 [font-stretch:125%]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -36,9 +37,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <button className="btn-primary w-full" disabled={pending}>{pending ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar conta"}</button>
         <p className="muted text-center">
           {mode === "login" ? (
-            <>Não tem conta? <Link className="font-semibold text-brand-600" href="/cadastro">Cadastre-se</Link></>
+            <>Não tem conta? <Link className="font-semibold text-brand-600" href={next ? `/cadastro?next=${encodeURIComponent(next)}` : "/cadastro"}>Cadastre-se</Link></>
           ) : (
-            <>Já tem conta? <Link className="font-semibold text-brand-600" href="/login">Entrar</Link></>
+            <>Já tem conta? <Link className="font-semibold text-brand-600" href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}>Entrar</Link></>
           )}
         </p>
       </form>

@@ -1,48 +1,56 @@
 import { requireUser } from "@/lib/auth";
-import { BILLING_LABEL, PLANS, PLAN_ORDER, hasActiveAccess } from "@/lib/plans";
+import { BILLING_LABEL, PLANS, hasActiveAccess } from "@/lib/plans";
+import { stripeEnabled } from "@/lib/stripe";
 import { PlanCards } from "./PlanCards";
 
 const STATUS = { TRIAL: "Período de teste", ACTIVE: "Ativa", PAST_DUE: "Pagamento pendente", CANCELED: "Cancelada" } as const;
 
-export default async function AssinaturaPage() {
+const NOTICE: Record<string, { tone: "ok" | "warn"; text: string }> = {
+  sucesso: { tone: "ok", text: "Pagamento recebido! Seu plano é liberado em instantes (atualize a página se ainda não aparecer)." },
+  cancelado: { tone: "warn", text: "Compra cancelada. Nada foi cobrado." },
+  indisponivel: { tone: "warn", text: "O checkout ainda está sendo configurado. Tente de novo em breve." },
+  "ja-incluido": { tone: "ok", text: "Esse plano já está incluído no seu acesso vitalício." },
+  invalido: { tone: "warn", text: "Plano não encontrado." },
+};
+
+export default async function AssinaturaPage({ searchParams }: { searchParams: Promise<{ checkout?: string }> }) {
   const user = await requireUser();
+  const { checkout } = await searchParams;
   const sub = user.subscription;
   const lifetime = sub?.billing === "LIFETIME";
   const active = hasActiveAccess(sub);
-
-  // Links de checkout por plano e forma de cobrança: CHECKOUT_URL_<PLANO>_<MONTHLY|LIFETIME>.
-  const checkout = Object.fromEntries(
-    PLAN_ORDER.flatMap((p) =>
-      (["MONTHLY", "LIFETIME"] as const).map((b) => [`${p}_${b}`, process.env[`CHECKOUT_URL_${p}_${b}`] ?? null]),
-    ),
-  );
+  const notice = checkout ? NOTICE[checkout] : undefined;
 
   return (
     <div className="space-y-6">
       <h1 className="h1">Assinatura</h1>
-      {!active && (
+      {notice && (
+        <p className={`rounded-md px-4 py-3 text-sm ${notice.tone === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>{notice.text}</p>
+      )}
+      {!active && !notice && (
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Seu acesso não está ativo. Escolha um plano abaixo para continuar criando e publicando páginas.
+          {sub ? "Seu acesso não está ativo." : "Você ainda não tem um plano."} Escolha um plano abaixo para criar e publicar páginas.
         </p>
       )}
-      <div className="card grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        <Info label="Plano atual" value={PLANS[user.plan].label} />
-        <Info label="Cobrança" value={sub ? BILLING_LABEL[sub.billing] : "—"} />
-        <Info label="Status" value={sub ? (lifetime && sub.status === "ACTIVE" ? "Acesso vitalício" : STATUS[sub.status]) : "—"} />
-        {lifetime ? (
-          <Info label="Próxima cobrança" value="Sem cobranças futuras" />
-        ) : (
-          <Info label="Próxima cobrança" value={sub?.currentPeriodEnd ? sub.currentPeriodEnd.toLocaleDateString("pt-BR") : "—"} />
-        )}
-        <Info label="Forma de pagamento" value={sub?.paymentMethod ?? "Não cadastrada"} />
-      </div>
-
-      <PlanCards
-        currentPlan={user.plan}
-        currentBilling={sub?.billing ?? "MONTHLY"}
-        email={user.email}
-        checkout={checkout}
-      />
+      {sub && (
+        <div className="card grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <Info label="Plano atual" value={PLANS[sub.plan].label} />
+          <Info label="Cobrança" value={BILLING_LABEL[sub.billing]} />
+          <Info label="Status" value={lifetime && sub.status === "ACTIVE" ? "Acesso vitalício" : STATUS[sub.status]} />
+          <Info
+            label="Próxima cobrança"
+            value={lifetime ? "Sem cobranças futuras" : sub.currentPeriodEnd ? sub.currentPeriodEnd.toLocaleDateString("pt-BR") : "—"}
+          />
+          <div>
+            <div className="muted">Forma de pagamento</div>
+            <div className="font-semibold">{sub.paymentMethod ?? "—"}</div>
+            {!lifetime && sub.stripeCustomerId && (
+              <a href="/api/billing-portal" className="text-sm font-semibold text-brand-600 hover:underline">Gerenciar ou cancelar</a>
+            )}
+          </div>
+        </div>
+      )}
+      <PlanCards currentPlan={sub ? user.plan : null} currentBilling={sub?.billing ?? null} active={active} checkoutReady={stripeEnabled()} />
     </div>
   );
 }

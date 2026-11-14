@@ -36,7 +36,7 @@ export async function publishWithAgent(pageId: string): Promise<{ error?: string
   return {};
 }
 
-// Basic/Pro: o cliente cola o HTML que o Claude gerou e nós publicamos.
+// Pro: o cliente cola o HTML que o Claude gerou e nós publicamos.
 export async function publishPasted(pageId: string, html: string): Promise<{ error?: string }> {
   const { user, page } = await ownedPage(pageId);
   if (!hasActiveAccess(user.subscription)) return { error: "Seu acesso não está ativo. Veja a tela Assinatura." };

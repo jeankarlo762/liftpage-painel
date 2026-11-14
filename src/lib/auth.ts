@@ -32,6 +32,6 @@ export async function requireUser() {
     include: { subscription: true, connections: { select: { provider: true, accountName: true } } },
   });
   if (!user) redirect("/login");
-  const plan = user.subscription?.plan ?? "BASIC";
+  const plan = user.subscription?.plan ?? "PRO";
   return { ...user, plan };
 }

@@ -42,7 +42,7 @@ export type Briefing = z.infer<typeof briefingSchema>;
 export type AssetRef = { kind: string; filename: string; publicPath: string };
 
 // Monta o prompt final a partir do questionário e dos arquivos enviados.
-// O mesmo texto serve para colar no Claude (Basic/Pro) e para o agente (Premium).
+// O mesmo texto serve para colar no Claude (Pro) e para o agente (Premium).
 export function buildPrompt(b: Briefing, assets: AssetRef[]) {
   const logo = assets.find((a) => a.kind === "logo");
   const images = assets.filter((a) => a.kind === "image");
