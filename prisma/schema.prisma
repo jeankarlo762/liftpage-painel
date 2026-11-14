@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  PRO
+  PREMIUM
+}
+
+enum Billing {
+  MONTHLY  // mensal, renova todo mês
+  LIFETIME // vitalício, pagamento único
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum SiteType {
+  SINGLE   // página única
+  SECTIONS // página com sessões (multi-seções / multi-páginas)
+}
+
+enum Template {
+  PROFISSIONAL
+  CORPORATIVO
+  PESSOAL
+  CRIATIVO
+}
+
+enum PageStatus {
+  DRAFT        // questionário salvo, prompt gerado
+  GENERATING   // agente Claude escrevendo o código
+  PUSHING      // criando repositório e enviando arquivos
+  DEPLOYING    // Railway fazendo deploy
+  LIVE
+  FAILED
+}
+
+enum DomainStatus {
+  PENDING_DNS
+  ACTIVE
+  ERROR
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  company      String?
+  document     String?  // CPF/CNPJ
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subscription Subscription?
+  connections  Connection[]
+  pages        Page[]
+  assets       Asset[]
+  domains      Domain[]
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  userId           String             @unique
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             Plan               @default(PRO)
+  status           SubscriptionStatus @default(TRIAL)
+  billing          Billing            @default(MONTHLY)
+  currentPeriodEnd DateTime?          // vazio no vitalício
+  provider         String?            // "stripe"
+  providerRef      String?            // Stripe: id da assinatura (mensal) ou do pagamento (vitalício)
+  stripeCustomerId String?
+  paymentMethod    String?            // ex.: "Cartão final 4242", "Pix"
+  updatedAt        DateTime           @updatedAt
+}
+
+// Conexões do usuário (GitHub via OAuth, Railway via token). Tokens criptografados.
+model Connection {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    String   // "github" | "railway"
+  accountName String?
+  tokenEnc    String
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, provider])
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pageId    String?
+  page      Page?    @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  kind      String   // "logo" | "image"
+  filename  String
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+}
+
+model Page {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String     // nome do negócio / da página
+  clientName  String?    // cliente para quem a página foi feita
+  domain      String?    // domínio da página informado no cadastro
+  amountPaid  Decimal?   @db.Decimal(12, 2) // quanto o cliente pagou (receita do Dashboard)
+  slug        String     @unique
+  niche       String
+  siteType    SiteType
+  template    Template
+  colors      String[]
+  briefing    Json       // respostas do questionário
+  prompt      String     @db.Text
+  status      PageStatus @default(DRAFT)
+  statusLog   String?    @db.Text
+  error       String?    @db.Text
+  repoUrl     String?
+  railwayProjectId String?
+  railwayServiceId String?
+  railwayEnvironmentId String?
+  url         String?
+  hostedByPlatform Boolean @default(false) // true: servida pela própria LiftPage em /{slug}
+  html        String?    @db.Text // HTML final das páginas hospedadas na LiftPage
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  publishedAt DateTime?
+
+  assets      Asset[]
+  domains     Domain[]
+  events      PageEvent[]
+}
+
+model Domain {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pageId    String
+  page      Page         @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  hostname  String       @unique
+  status    DomainStatus @default(PENDING_DNS)
+  railwayDomainId String?
+  dnsRecords Json?       // registros que o cliente precisa criar no DNS
+  createdAt DateTime     @default(now())
+}
+
+// Estatísticas: eventos enviados pelo script injetado nas páginas publicadas.
+model PageEvent {
+  id        BigInt   @id @default(autoincrement())
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  type      String   // "view" | "click"
+  path      String?
+  referrer  String?
+  visitorId String?
+  label     String?  // para cliques: texto/destino do CTA
+  createdAt DateTime @default(now())
+
+  @@index([pageId, createdAt])
+}

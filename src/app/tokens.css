@@ -1,0 +1,39 @@
+/* LiftPage — tokens de marca
+   Reutilize no painel e na landing page. Fontes (Google Fonts):
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+*/
+:root {
+  /* Cores base: preto, branco e azul midnight */
+  --lc-preto: #0A0A0B;         /* texto principal, fundos escuros, barra lateral do painel */
+  --lc-midnight: #1A2A6C;      /* cor da marca: botões, logo, item ativo */
+  --lc-midnight-escuro: #111A3D; /* superfícies escuras secundárias, cartão em destaque */
+  --lc-midnight-claro: #9DB0FF;  /* destaque sobre fundo preto (textos, ícones) */
+  --lc-branco: #FFFFFF;        /* fundo claro e cartões */
+  --lc-gelo: #F5F6F9;          /* superfícies claras secundárias */
+  --lc-grafite: #4B5163;       /* texto secundário */
+  --lc-linha: #E2E5EC;         /* bordas e divisores */
+  /* Semânticas */
+  --lc-sucesso: #1E9C8A;
+  --lc-alerta: #E8A317;
+  --lc-erro: #D93A3A;
+
+  /* Tipografia */
+  --lc-font-display: "Archivo", "Arial Black", "Segoe UI", system-ui, sans-serif; /* títulos: peso 900, font-stretch 125%, caixa alta */
+  --lc-font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --lc-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Escala de tipo */
+  --lc-text-xs: 0.75rem;
+  --lc-text-sm: 0.875rem;
+  --lc-text-base: 1rem;
+  --lc-text-lg: 1.25rem;
+  --lc-text-xl: 1.75rem;
+  --lc-text-2xl: 2.5rem;
+  --lc-text-3xl: clamp(2.5rem, 6vw, 4.5rem);
+
+  /* Forma */
+  --lc-raio-sm: 6px;
+  --lc-raio: 12px;
+  --lc-raio-lg: 20px;
+  --lc-sombra: 0 1px 2px rgba(10, 10, 11, .05), 0 8px 24px rgba(17, 26, 61, .10);
+}
