@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/logo-simbolo.svg" type="image/svg+xml">
+<title>LiftPage</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="LiftPage: crie landing pages com IA a partir de um questionário simples e coloque no ar automaticamente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: faixa preta no topo (hero com questionário → página no ar), corpo branco, planos em três colunas. Cores: preto, branco e azul midnight. */
+:root {
+  --bg: #FFFFFF;
+  --surface: #F5F6F9;
+  --ink: #0A0A0B;
+  --ink-2: #4B5163;
+  --line: #E2E5EC;
+  --accent: #1A2A6C;
+  --accent-ink: #1A2A6C;
+  --accent-fg: #FFFFFF;
+  --accent-light: #9DB0FF;
+  --breeze: #1E9C8A;
+  --band: #0A0A0B;
+  --band-2: #111A3D;
+  --band-fg: #FFFFFF;
+  --band-muted: #A3A9BC;
+  --chip: #EEF0F5;
+  --font-display: "Archivo", "Arial Black", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --shadow: 0 1px 2px rgba(10,10,11,.05), 0 10px 30px rgba(17,26,61,.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A0A0B; --surface: #12141C; --ink: #F5F6F9; --ink-2: #A3A9BC; --line: #252A3A;
+    --accent: #2B3F94; --accent-ink: #9DB0FF; --accent-fg: #FFFFFF; --accent-light: #9DB0FF; --breeze: #3CCBB8;
+    --band: #000000; --band-2: #111A3D; --band-fg: #FFFFFF; --band-muted: #A3A9BC; --chip: #171B28;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A0A0B; --surface: #12141C; --ink: #F5F6F9; --ink-2: #A3A9BC; --line: #252A3A;
+  --accent: #2B3F94; --accent-ink: #9DB0FF; --accent-fg: #FFFFFF; --accent-light: #9DB0FF; --breeze: #3CCBB8;
+  --band: #000000; --band-2: #111A3D; --band-fg: #FFFFFF; --band-muted: #A3A9BC; --chip: #171B28;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+h1, h2, h3 { font-family: var(--font-display); font-stretch: 112%; line-height: 1.02; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h1, h2 { font-weight: 900 !important; text-transform: uppercase; font-stretch: 125%; line-height: .95; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: inherit; }
+.wrap { max-width: 1140px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+.btn { border-radius: 4px !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 800 14px/1 var(--font-display); text-transform: uppercase; letter-spacing: .04em; padding: 14px 20px; border-radius: 10px; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.btn:focus-visible { outline: 3px solid var(--accent-light); outline-offset: 2px; }
+.btn-primary { background: var(--accent); color: var(--accent-fg); }
+.btn-primary:hover { transform: translateY(-1px); }
+.band .btn-primary, .plan.featured .btn-primary { background: #FFFFFF; color: #0A0A0B; }
+.btn-ghost { border-color: currentColor; color: inherit; background: transparent; }
+
+/* Topo */
+.band { background: var(--band); color: var(--band-fg); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 900 24px/1 var(--font-display); font-stretch: 125%; letter-spacing: -0.02em; text-transform: uppercase; }
+.brand svg { width: 34px; height: 34px; flex: none; }
+.brand .ai { color: var(--accent-light); }
+.nav-links { display: flex; gap: 24px; font-size: 15px; }
+.nav-links a { text-decoration: none; color: var(--band-muted); }
+.nav-links a:hover { color: var(--band-fg); }
+.nav .btn { padding: 10px 14px; font-size: 13px; white-space: nowrap; }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1100px); gap: 48px; align-items: center; padding-block: 40px 72px; }
+.hero > * { min-width: 0; }
+.hero h1 { font-size: clamp(2.3rem, 6vw, 5rem); }
+.hero h1 em { font-style: normal; color: var(--accent-light); }
+.hero .lead { margin-top: 20px; font-size: 1.15rem; color: var(--band-muted); max-width: 52ch; }
+.hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hero .proof { margin-top: 22px; font-family: var(--font-mono); font-size: 13px; color: var(--band-muted); }
+
+/* Demonstração: questionário → página no ar */
+.demo { position: relative; display: grid; gap: 14px; }
+.panel { background: var(--band-2); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; }
+.panel h3 { font: 600 13px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--band-muted); margin-bottom: 14px; }
+.q { display: grid; grid-template-columns: 110px 1fr; gap: 10px 12px; align-items: center; font-size: 14px; }
+.q dt { color: var(--band-muted); }
+.q dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.08); font-size: 13px; }
+.pill.on { background: #FFFFFF; color: #0A0A0B; font-weight: 600; }
+.sw { width: 20px; height: 20px; border-radius: 6px; border: 2px solid rgba(255,255,255,.25); }
+.log { font: 13px/1.8 var(--font-mono); margin: 0; padding: 0; list-style: none; }
+.log li { display: flex; gap: 10px; }
+.log .ok { color: #3CCBB8; }
+.log .run { color: var(--accent-light); animation: pulse 1.2s ease-in-out infinite; }
+.live { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,.15); font: 13px var(--font-mono); flex-wrap: wrap; }
+.live b { color: #3CCBB8; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; }
+.live b::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #3CCBB8; box-shadow: 0 0 0 4px rgba(60,203,184,.2); }
+@keyframes pulse { 50% { opacity: .45; } }
+
+/* Seções */
+section.block { padding-block: 88px; }
+.head { max-width: 680px; display: grid; gap: 14px; margin-bottom: 44px; }
+.head h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 800; }
+.head p { color: var(--ink-2); font-size: 1.08rem; }
+
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: s; }
+.step { counter-increment: s; display: grid; gap: 10px; align-content: start; padding-top: 18px; border-top: 2px solid var(--ink); }
+.step::before { content: "0" counter(s); font: 500 13px var(--font-mono); color: var(--accent-ink); }
+.step h3 { font-size: 1.25rem; font-weight: 700; }
+.step p { color: var(--ink-2); font-size: 15px; }
+
+.niches { display: flex; flex-wrap: wrap; gap: 8px; }
+.niches span { padding: 8px 14px; border-radius: 999px; background: var(--chip); font-size: 15px; }
+.niches span.more { background: transparent; border: 1px dashed var(--line); color: var(--ink-2); }
+
+.models { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 40px; }
+.model { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 8px; }
+.model .mini { height: 86px; border-radius: 8px; padding: 10px; display: grid; gap: 6px; align-content: start; }
+.mini i { display: block; height: 7px; border-radius: 4px; background: currentColor; opacity: .85; }
+.mini i.s { width: 55%; } .mini i.m { width: 80%; opacity: .4; } .mini i.b { width: 34%; height: 14px; border-radius: 5px; margin-top: 4px; }
+.model b { font-family: var(--font-display); font-size: 1.1rem; }
+.model small { color: var(--ink-2); font-size: 14px; }
+
+/* Planos */
+.plans { display: grid; grid-template-columns: repeat(2, 1fr); max-width: 820px; gap: 20px; align-items: stretch; }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.plan.featured { background: var(--band-2); color: var(--band-fg); border-color: var(--band-2); box-shadow: var(--shadow); position: relative; }
+.plan.featured .muted, .plan.featured li { color: var(--band-muted); }
+.plan.featured li b { color: var(--band-fg); }
+.tag { position: absolute; top: -12px; left: 28px; background: #FFFFFF; color: #0A0A0B; border: 1px solid var(--line); font: 600 12px var(--font-mono); letter-spacing: .05em; text-transform: uppercase; padding: 5px 10px; border-radius: 6px; }
+.plan h3 { font-size: 1.6rem; font-weight: 900; font-stretch: 125%; text-transform: uppercase; }
+.muted { color: var(--ink-2); font-size: 15px; }
+.price { display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; }
+.price .cur { font-weight: 600; }
+.price .val { font: 900 2.8rem/1 var(--font-display); font-stretch: 125%; letter-spacing: -0.02em; }
+.price .per { color: inherit; opacity: .7; font-size: 15px; }
+.annual-note { font-size: 13px; opacity: .75; margin-top: 6px; }
+.count { font: 500 14px var(--font-mono); padding: 10px 12px; border-radius: 10px; background: var(--chip); }
+.plan.featured .count { background: rgba(255,255,255,.08); color: var(--band-fg); }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 15px; color: var(--ink-2); }
+.plan li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; }
+.plan li::before { content: ""; width: 16px; height: 16px; margin-top: 3px; border-radius: 50%; background: var(--breeze); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; }
+.plan li b { color: var(--ink); font-weight: 600; }
+.plan .btn { margin-top: auto; width: 100%; }
+.plan:not(.featured) .btn-ghost { color: var(--ink); border-color: var(--line); }
+.plan:not(.featured) .btn-ghost:hover { border-color: var(--ink); }
+.trust { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--ink-2); font-size: 14px; }
+
+/* FAQ */
+.faq { display: grid; gap: 0; max-width: 820px; }
+.faq details { border-bottom: 1px solid var(--line); padding-block: 18px; }
+.faq summary { cursor: pointer; font: 700 1.1rem var(--font-display); list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--accent-ink); font-family: var(--font-mono); }
+.faq details[open] summary::after { content: "–"; }
+.faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.faq p { margin-top: 10px; color: var(--ink-2); max-width: 65ch; }
+
+/* CTA final + rodapé */
+.final { padding-block: 72px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
+.final h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; max-width: 18ch; }
+.final h2 em { font-style: normal; color: var(--accent-light); }
+footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding-block: 24px; border-top: 1px solid rgba(255,255,255,.1); color: var(--band-muted); font-size: 14px; }
+
+@media (max-width: 920px) {
+  .hero { grid-template-columns: 1fr; gap: 36px; }
+  .steps, .models { grid-template-columns: repeat(2, 1fr); }
+  .plans { grid-template-columns: 1fr; max-width: 520px; }
+  .nav-links { display: none; }
+}
+@media (max-width: 520px) {
+  .steps, .models { grid-template-columns: 1fr; }
+  .q { grid-template-columns: 1fr; gap: 4px; }
+  .brand { font-size: 19px; } .brand svg { width: 28px; height: 28px; }
+  .nav .btn { padding: 9px 10px; font-size: 12px; }
+  .q dd { margin-bottom: 8px; }
+  section.block { padding-block: 64px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="band">
+  <div class="wrap">
+    <nav class="nav" aria-label="Principal">
+      <a class="brand" href="#topo" aria-label="LiftPage, início">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#1A2A6C"/><path d="M14 29 L24 15 L34 29" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 36 H32" fill="none" stroke="#9DB0FF" stroke-width="4.5" stroke-linecap="round"/></svg>
+        <span>Lift<span class="ai">Page</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#nichos">Nichos</a>
+        <a href="#planos">Planos</a>
+        <a href="#duvidas">Dúvidas</a>
+      </div>
+      <a class="btn btn-primary" href="#planos">Começar agora</a>
+    </nav>
+
+    <header class="hero" id="topo">
+      <div>
+        <p class="eyebrow" style="color: var(--accent-light)">Landing pages com IA</p>
+        <h1 style="margin-top:14px">Crie sites e comece a <em>vender agora</em>.</h1>
+        <p class="lead">Escolha o nicho, o estilo, as cores e envie sua logo. A IA escreve a página, cria o repositório no seu GitHub e publica no Railway. Sem código e sem configurar servidor.</p>
+        <div class="ctas">
+          <a class="btn btn-primary" href="#planos">Ver planos</a>
+          <a class="btn btn-ghost" href="#como-funciona">Como funciona</a>
+        </div>
+        <p class="proof">Até 50 nichos prontos · página única ou com seções · domínio próprio</p>
+      </div>
+
+    </header>
+  </div>
+</div>
+
+<main>
+  <section class="block wrap" id="como-funciona">
+    <div class="head">
+      <p class="eyebrow">Como funciona</p>
+      <h2>Do questionário ao site publicado, em quatro passos</h2>
+      <p>Você cuida do negócio. O LiftPage transforma suas respostas em uma página pronta para receber clientes.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Responda o questionário</h3><p>Nicho, tipo de site, modelo, cores, logo e imagens. Leva uns dois minutos.</p></div>
+      <div class="step"><h3>A IA monta o prompt</h3><p>Suas respostas e arquivos viram um briefing completo, com textos pensados para o seu nicho.</p></div>
+      <div class="step"><h3>O agente cria a página</h3><p>O código é gerado e salvo em um repositório no seu GitHub. Ele é seu, para sempre.</p></div>
+      <div class="step"><h3>Publicação automática</h3><p>A página sobe no Railway e você acompanha visitas e status no painel. Conecte seu domínio quando quiser.</p></div>
+    </div>
+  </section>
+
+  <section class="block wrap" id="nichos" style="padding-top:0">
+    <div class="head">
+      <p class="eyebrow">Nichos prontos</p>
+      <h2>Textos e estrutura que já falam a língua do seu cliente</h2>
+      <p>Cada nicho vem com seções, chamadas e provas sociais pensadas para quem compra naquele mercado.</p>
+    </div>
+    <div class="niches">
+      <span>Odontologia</span><span>Advocacia</span><span>Estética e beleza</span><span>Academia</span><span>Imobiliária</span><span>Restaurante</span><span>Psicologia</span><span>Contabilidade</span><span>Arena esportiva</span><span>Pet shop</span><span>Oficina mecânica</span><span>Escola de idiomas</span><span>Nutrição</span><span>Arquitetura</span><span>Barbearia</span><span>Clínica médica</span><span>Energia solar</span><span>Infoprodutos</span>
+      <span class="more">+ até 50 no Premium</span>
+    </div>
+
+    <div class="models">
+      <div class="model"><div class="mini" style="background:#E8F1FF;color:#0B3B8C"><i class="s"></i><i class="m"></i><i class="m"></i><i class="b" style="background:#1F6FEB"></i></div><b>Profissional</b><small>Sóbrio e confiável, para serviços e consultórios.</small></div>
+      <div class="model"><div class="mini" style="background:#E9ECEF;color:#1D2733"><i class="s"></i><i class="m"></i><i class="m"></i><i class="b"></i></div><b>Corporativo</b><small>Estruturado, para empresas e indústria.</small></div>
+      <div class="model"><div class="mini" style="background:#FFF1E6;color:#8A3B12"><i class="s"></i><i class="m"></i><i class="m"></i><i class="b" style="background:#FF5A1F"></i></div><b>Pessoal</b><small>Próximo e humano, para profissionais autônomos.</small></div>
+      <div class="model"><div class="mini" style="background:#1A1033;color:#F5C2FF"><i class="s"></i><i class="m"></i><i class="m"></i><i class="b" style="background:#B8F35A"></i></div><b>Criativo</b><small>Ousado e visual, para marcas que querem aparecer.</small></div>
+    </div>
+  </section>
+
+  <section class="block wrap" id="planos" style="padding-top:0">
+    <div class="head">
+      <p class="eyebrow">Planos</p>
+      <h2>Escolha seu plano</h2>
+      <p>Os dois planos incluem o questionário com IA, o painel de páginas publicadas e conexão com GitHub e Railway.</p>
+    </div>
+
+
+    <div class="plans">
+
+      <article class="plan featured">
+        <span class="tag">Mais escolhido</span>
+        <div><h3>Pro</h3><p class="muted">Para agências e gestores que entregam sites completos.</p></div>
+        <div>
+          <div class="price"><span class="cur">R$</span><span class="val">49,90</span><span class="per">/mês</span></div>
+          <p class="annual-note">cobrado todo mês · cancele quando quiser</p>
+        </div>
+        <p class="count">30 nichos</p>
+        <ul>
+          <li><span><b>Landing page + sites com seções</b></span></li>
+          <li><span>Questionário com IA e geração de prompt</span></li>
+          <li><span>Publicação via seu GitHub e Railway</span></li>
+          <li><span>Painel de páginas publicadas e domínio próprio</span></li>
+          <li><span>Estatísticas de visitas por página</span></li>
+          <li><span>Mais modelos por nicho</span></li>
+          <li><span>Suporte prioritário</span></li>
+        </ul>
+        <a class="btn btn-primary" href="/api/checkout/pro" data-plan="pro">Assinar Pro</a>
+      </article>
+
+      <article class="plan">
+        <div><h3>Premium</h3><p class="muted">Para quem quer prospectar, criar e hospedar no automático.</p></div>
+        <div>
+          <div class="price"><span class="cur">R$</span><span class="val">149,90</span><span class="per">vitalício</span></div>
+          <p class="annual-note">pagamento único · acesso para sempre</p>
+        </div>
+        <p class="count">50 nichos</p>
+        <ul>
+          <li><span><b>Prospecção de clientes</b> por nicho e região</span></li>
+          <li><span>Landing page + sites com seções</span></li>
+          <li><span><b>Hospedagem automática</b>, sem precisar de conta no Railway</span></li>
+          <li><span><b>Agente de criação com Claude</b>, que ajusta a página por conversa</span></li>
+          <li><span>Tudo do Pro</span></li>
+        </ul>
+        <a class="btn btn-ghost" href="/api/checkout/premium" data-plan="premium">Comprar Premium</a>
+      </article>
+    </div>
+    <div class="trust"><span>Pagamento seguro via Stripe</span><span>Cartão de crédito</span><span>7 dias de garantia</span></div>
+  </section>
+
+  <section class="block wrap" id="duvidas" style="padding-top:0">
+    <div class="head"><p class="eyebrow">Dúvidas</p><h2>Perguntas frequentes</h2></div>
+    <div class="faq">
+      <details><summary>Preciso saber programar?</summary><p>Não. Você responde o questionário e o LiftPage cuida do resto: texto, código, repositório e publicação.</p></details>
+      <details><summary>A página fica minha?</summary><p>Sim. O código é salvo em um repositório no seu GitHub. Se cancelar o Pro, o código continua com você.</p></details>
+      <details><summary>Qual a diferença entre página única e site com seções?</summary><p>A página única concentra tudo em uma rolagem, ideal para anúncios. O site com seções tem áreas separadas, como serviços, sobre, depoimentos e contato, para quem precisa de mais conteúdo.</p></details>
+      <details><summary>Posso usar meu próprio domínio?</summary><p>Pode. Cadastre o domínio no painel e siga as instruções de DNS. No Premium a hospedagem e a conexão do domínio são automáticas.</p></details>
+      <details><summary>Quais formas de pagamento vocês aceitam?</summary><p>O pagamento é feito pela Stripe, com cartão de crédito. O Pro é cobrado todo mês e o Premium é pago uma vez só, com acesso para sempre.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer class="band">
+  <div class="wrap">
+    <div class="final">
+      <h2>Sua próxima página pode estar <em>no ar hoje</em>.</h2>
+      <a class="btn btn-primary" href="#planos">Escolher meu plano</a>
+    </div>
+    <div class="row"><span>© 2026 LiftPage · um produto Grupo MK</span><span>Feito no Brasil</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

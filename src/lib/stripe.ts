@@ -10,7 +10,12 @@ export function stripeEnabled() {
 let client: Stripe | null = null;
 export function stripe() {
   if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY não configurada");
-  client ??= new Stripe(process.env.STRIPE_SECRET_KEY);
+  // STRIPE_API_BASE só serve para testes locais com um Stripe simulado.
+  const base = process.env.STRIPE_API_BASE ? new URL(process.env.STRIPE_API_BASE) : null;
+  client ??= new Stripe(
+    process.env.STRIPE_SECRET_KEY,
+    base ? { host: base.hostname, port: Number(base.port), protocol: base.protocol.replace(":", "") as "http" | "https" } : undefined,
+  );
   return client;
 }
 
