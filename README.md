@@ -38,7 +38,7 @@ Painel onde o cliente responde um questionário, recebe um prompt pronto e publi
 
 Os limites são conferidos no servidor, não só na tela. Sem acesso ativo (mensal vencido ou cancelado) o cliente não cria nem publica páginas; o vitalício ativo nunca expira.
 
-Preços em `src/lib/plans.ts`: mensal R$ 49,90 e vitalício R$ 147,90 (por enquanto só no Basic, até confirmar se valem para todos os planos).
+Preços em `src/lib/plans.ts`: Pro R$ 49,90/mês, Premium R$ 149,90 vitalício (pagamento único), Basic a definir. O checkout será pelo Stripe (Payment Links em `CHECKOUT_URL_<PLANO>_<MONTHLY|LIFETIME>`).
 
 ## Fluxo "Criar página"
 

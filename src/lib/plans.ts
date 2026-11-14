@@ -13,13 +13,13 @@ export type PlanFeatures = {
 };
 
 // Regras dos planos em um só lugar. Cobrança: mensal ou vitalício (sem plano anual).
-// Preços definidos pelo Grupo MK em 14/11/2026: mensal R$ 49,90 e vitalício R$ 147,90.
-// Ainda não está confirmado se valem para todos os planos; Pro e Premium ficam "a definir" (null) até lá.
+// Preços definidos pelo Grupo MK em 14/11/2026: Pro R$ 49,90 mensal e Premium R$ 149,90 vitalício.
+// Basic ainda a definir. null = forma de cobrança não oferecida naquele plano.
 export const PLANS: Record<Plan, PlanFeatures> = {
   BASIC: {
     label: "Basic",
-    monthlyPrice: 49.9,
-    lifetimePrice: 147.9,
+    monthlyPrice: null,
+    lifetimePrice: null,
     maxNiches: 15,
     sections: false,
     agent: false,
@@ -29,7 +29,7 @@ export const PLANS: Record<Plan, PlanFeatures> = {
   },
   PRO: {
     label: "Pro",
-    monthlyPrice: null,
+    monthlyPrice: 49.9,
     lifetimePrice: null,
     maxNiches: 30,
     sections: true,
@@ -41,7 +41,7 @@ export const PLANS: Record<Plan, PlanFeatures> = {
   PREMIUM: {
     label: "Premium",
     monthlyPrice: null,
-    lifetimePrice: null,
+    lifetimePrice: 149.9,
     maxNiches: 50,
     sections: true,
     agent: true,
