@@ -4,31 +4,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
-import { CreditCard, Globe, LayoutDashboard, LogOut, Menu, Rocket, Settings, Sparkles, User, X } from "lucide-react";
+import { CreditCard, LayoutDashboard, LogOut, Menu, Rocket, Settings, Sparkles, User, X } from "lucide-react";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/criar", label: "Criar página", icon: Sparkles },
   { href: "/paginas", label: "Páginas publicadas", icon: Rocket },
-  { href: "/dominios", label: "Domínios", icon: Globe },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
   { href: "/perfil", label: "Perfil", icon: User },
   { href: "/assinatura", label: "Assinatura", icon: CreditCard },
 ];
 
-export function Sidebar({ userName, planLabel, logout }: { userName: string; planLabel: string; logout: () => Promise<void> }) {
+export function Sidebar({ userName, planLabel, pageCount, logout }: { userName: string; planLabel: string; pageCount: number; logout: () => Promise<void> }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   return (
     <>
-      <header className="sticky top-0 z-30 flex items-center justify-between bg-ink-900 px-4 py-3 text-white lg:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between bg-black px-4 py-3 text-white lg:hidden">
         <span className="font-display font-black uppercase [font-stretch:125%]">Lift<span className="text-brand-300">Page</span></span>
         <button aria-label="Abrir menu" onClick={() => setOpen(true)}><Menu className="h-6 w-6" /></button>
       </header>
       {open && <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setOpen(false)} />}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-ink-900 text-white transition-transform lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-black text-white transition-transform lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -50,10 +49,13 @@ export function Sidebar({ userName, planLabel, logout }: { userName: string; pla
                 onClick={() => setOpen(false)}
                 className={clsx(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium",
-                  active ? "bg-brand-700 text-brand-300" : "text-white/60 hover:bg-white/5 hover:text-white",
+                  active ? "bg-brand-700 text-brand-300" : "text-white/60 hover:bg-surface/5 hover:text-white",
                 )}
               >
                 <Icon className="h-[18px] w-[18px]" /> {label}
+                {href === "/paginas" && pageCount > 0 && (
+                  <span className="ml-auto rounded-full bg-brand-600 px-2 py-0.5 text-[11px] font-bold text-white">{pageCount}</span>
+                )}
               </Link>
             );
           })}

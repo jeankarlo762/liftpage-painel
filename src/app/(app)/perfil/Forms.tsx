@@ -17,8 +17,8 @@ export function ProfileForm({ user }: { user: U }) {
       <F name="document" label="CPF/CNPJ" value={user.document} />
       <div className="flex items-center gap-3 sm:col-span-2">
         <button className="btn-primary" disabled={pending}>Salvar</button>
-        {state?.error && <span className="text-sm text-red-600">{state.error}</span>}
-        {state?.ok && <span className="text-sm text-emerald-700">{state.ok}</span>}
+        {state?.error && <span className="text-sm text-red-300">{state.error}</span>}
+        {state?.ok && <span className="text-sm text-emerald-300">{state.ok}</span>}
       </div>
     </form>
   );
@@ -33,8 +33,8 @@ export function PasswordForm() {
       <F name="next" label="Nova senha" type="password" />
       <div className="flex items-center gap-3 sm:col-span-2">
         <button className="btn-ghost" disabled={pending}>Alterar senha</button>
-        {state?.error && <span className="text-sm text-red-600">{state.error}</span>}
-        {state?.ok && <span className="text-sm text-emerald-700">{state.ok}</span>}
+        {state?.error && <span className="text-sm text-red-300">{state.error}</span>}
+        {state?.ok && <span className="text-sm text-emerald-300">{state.ok}</span>}
       </div>
     </form>
   );

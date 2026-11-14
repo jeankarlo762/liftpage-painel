@@ -116,6 +116,9 @@ model Page {
   userId      String
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   name        String     // nome do negócio / da página
+  clientName  String?    // cliente para quem a página foi feita
+  domain      String?    // domínio da página informado no cadastro
+  amountPaid  Decimal?   @db.Decimal(12, 2) // quanto o cliente pagou (receita do Dashboard)
   slug        String     @unique
   niche       String
   siteType    SiteType

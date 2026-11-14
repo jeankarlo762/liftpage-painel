@@ -83,7 +83,7 @@ export function PublishPanel(p: {
               const current = idx === stageIdx && busy;
               return (
                 <li key={s.key} className="flex items-center gap-3 text-sm">
-                  {done ? <Check className="h-4 w-4 text-emerald-600" /> : current ? <Loader2 className="h-4 w-4 animate-spin text-brand-600" /> : <span className="h-4 w-4 rounded-full border border-slate-300" />}
+                  {done ? <Check className="h-4 w-4 text-emerald-300" /> : current ? <Loader2 className="h-4 w-4 animate-spin text-brand-300" /> : <span className="h-4 w-4 rounded-full border border-linha" />}
                   <span className={done || current ? "font-medium" : "text-ink-300"}>{s.label}</span>
                 </li>
               );
@@ -91,12 +91,12 @@ export function PublishPanel(p: {
           </ol>
         )}
 
-        {p.status === "FAILED" && p.error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{p.error}</p>}
+        {p.status === "FAILED" && p.error && <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">{p.error}</p>}
 
         {!p.published && !busy && (
           <>
             {!p.canPublish && (
-              <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p className="rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
                 Conecte seu GitHub e seu Railway em <Link href="/configuracoes" className="font-semibold underline">Configurações</Link> para publicar.
               </p>
             )}
@@ -121,14 +121,14 @@ export function PublishPanel(p: {
               </div>
             )}
             {(p.status === "DRAFT" || p.status === "FAILED") && (
-              <button className="text-sm text-ink-500 hover:text-red-600" disabled={pending} onClick={() => start(async () => { await deleteDraft(p.pageId); router.push("/paginas"); })}>
+              <button className="text-sm text-ink-500 hover:text-red-300" disabled={pending} onClick={() => start(async () => { await deleteDraft(p.pageId); router.push("/paginas"); })}>
                 Excluir rascunho
               </button>
             )}
           </>
         )}
 
-        {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+        {error && <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</p>}
 
         {p.statusLog && (
           <details className="text-xs text-ink-500">

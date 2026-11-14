@@ -25,10 +25,10 @@ export default async function AssinaturaPage({ searchParams }: { searchParams: P
     <div className="space-y-6">
       <h1 className="h1">Assinatura</h1>
       {notice && (
-        <p className={`rounded-md px-4 py-3 text-sm ${notice.tone === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"}`}>{notice.text}</p>
+        <p className={`rounded-md px-4 py-3 text-sm ${notice.tone === "ok" ? "bg-emerald-500/10 text-emerald-300" : "bg-amber-500/10 text-amber-300"}`}>{notice.text}</p>
       )}
       {!active && !notice && (
-        <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p className="rounded-md bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
           {sub ? "Seu acesso não está ativo." : "Você ainda não tem um plano."} Escolha um plano abaixo para criar e publicar páginas.
         </p>
       )}
@@ -45,7 +45,7 @@ export default async function AssinaturaPage({ searchParams }: { searchParams: P
             <div className="muted">Forma de pagamento</div>
             <div className="font-semibold">{sub.paymentMethod ?? "—"}</div>
             {!lifetime && sub.stripeCustomerId && (
-              <a href="/api/billing-portal" className="text-sm font-semibold text-brand-600 hover:underline">Gerenciar ou cancelar</a>
+              <a href="/api/billing-portal" className="text-sm font-semibold text-brand-300 hover:underline">Gerenciar ou cancelar</a>
             )}
           </div>
         </div>

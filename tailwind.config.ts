@@ -10,13 +10,15 @@ export default {
           50: "#EEF1FB",
           100: "#DCE2F7",
           300: "#9DB0FF", // midnight claro
-          500: "#2B3F8F",
+          500: "#2B3F8F", // hover dos botões
           600: "#1A2A6C", // midnight
           700: "#111A3D", // midnight escuro
         },
-        ink: { 900: "#0A0A0B", 700: "#2A2E3A", 500: "#4B5163", 300: "#A3A8B8" },
-        gelo: "#F5F6F9",
-        linha: "#E2E5EC",
+        // Painel sempre no modo escuro: "ink" é o texto (claro) e "gelo" o fundo (preto).
+        ink: { 900: "#F5F6F9", 700: "#D3D7E2", 500: "#9AA0B3", 300: "#686E82" },
+        gelo: "#0A0A0B",
+        surface: "#131418",
+        linha: "#262830",
       },
       fontFamily: {
         sans: ["var(--lc-font-body)"],

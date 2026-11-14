@@ -14,12 +14,11 @@ Painel onde o cliente responde um questionário, recebe um prompt pronto e publi
 | Hospedagem | API GraphQL pública do Railway (projeto + serviço a partir do repo + domínio) |
 | Estatísticas | Script leve injetado em cada página publicada → `POST /api/track` |
 
-## Telas (menu lateral)
+## Telas (menu lateral, sempre no modo escuro)
 
-- **Dashboard**: páginas no ar, visitas, visitantes únicos, cliques em CTA, gráfico de 30 dias.
-- **Criar página**: questionário em 6 passos (nicho, tipo de site, modelo, cores, logo e imagens, dados do negócio) → gera o prompt.
-- **Páginas publicadas**: lista com status e visitas; o detalhe mostra o prompt, o botão de criar ou publicar, o progresso e as estatísticas (visitas, conversão, CTAs mais clicados).
-- **Domínios**: cadastra o domínio no Railway e mostra os registros DNS que o cliente precisa criar.
+- **Dashboard**: receita total (soma do que os clientes pagaram), domínios no ar, visitas, visitantes únicos, cliques em CTA, gráfico de 30 dias.
+- **Criar página**: questionário em 7 passos (cliente com nome, domínio e valor pago, nicho, tipo de site, modelo, cores, logo e imagens, dados do negócio) → gera o prompt.
+- **Páginas publicadas** (com contador no menu): cliente, domínio, valor pago, status e visitas; o detalhe mostra o prompt, o botão de criar ou publicar, o progresso e as estatísticas (visitas, conversão, CTAs mais clicados).
 - **Configurações**: conectar GitHub (OAuth ou token) e Railway (token). Tokens ficam criptografados (AES-256-GCM).
 - **Perfil**: dados de cadastro e troca de senha.
 - **Assinatura**: plano atual, cobrança (mensal ou vitalício), status, próxima cobrança (o vitalício não tem) e botões de compra pelo Stripe e link para gerenciar ou cancelar o mensal. Não existe plano anual.

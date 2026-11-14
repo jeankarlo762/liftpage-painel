@@ -15,11 +15,11 @@ export function PlanCards(p: { currentPlan: Plan | null; currentBilling: Billing
         const isCurrent = p.active && key === p.currentPlan;
         const included = lifetimeOwned && p.currentPlan != null && PLAN_ORDER.indexOf(key) <= PLAN_ORDER.indexOf(p.currentPlan);
         return (
-          <div key={key} className={clsx("card flex flex-col", isCurrent && "border-brand-600 ring-2 ring-brand-100")}>
+          <div key={key} className={clsx("card flex flex-col", isCurrent && "border-brand-600 ring-2 ring-brand-600/40")}>
             <div className="mb-3 flex items-center justify-between">
               <h2>{plan.label}</h2>
               {isCurrent ? (
-                <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">Seu plano</span>
+                <span className="rounded-full bg-brand-600/25 px-2.5 py-1 text-xs font-semibold text-brand-300">Seu plano</span>
               ) : billing === "LIFETIME" ? (
                 <span className="rounded-full bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white">Vitalício</span>
               ) : null}

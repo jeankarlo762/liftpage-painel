@@ -2,12 +2,12 @@ import clsx from "clsx";
 import type { PageStatus } from "@prisma/client";
 
 const MAP: Record<PageStatus, { label: string; cls: string }> = {
-  DRAFT: { label: "Rascunho", cls: "bg-slate-100 text-slate-600" },
-  GENERATING: { label: "Gerando", cls: "bg-amber-100 text-amber-700" },
-  PUSHING: { label: "Criando repositório", cls: "bg-amber-100 text-amber-700" },
-  DEPLOYING: { label: "Publicando", cls: "bg-blue-100 text-blue-700" },
-  LIVE: { label: "● No ar", cls: "bg-emerald-50 text-[#1E9C8A]" },
-  FAILED: { label: "Erro", cls: "bg-red-100 text-red-700" },
+  DRAFT: { label: "Rascunho", cls: "bg-white/10 text-ink-500" },
+  GENERATING: { label: "Gerando", cls: "bg-amber-500/15 text-amber-300" },
+  PUSHING: { label: "Criando repositório", cls: "bg-amber-500/15 text-amber-300" },
+  DEPLOYING: { label: "Publicando", cls: "bg-blue-500/15 text-blue-300" },
+  LIVE: { label: "● No ar", cls: "bg-emerald-500/10 text-[#1E9C8A]" },
+  FAILED: { label: "Erro", cls: "bg-red-500/15 text-red-300" },
 };
 
 export function StatusBadge({ status }: { status: PageStatus }) {

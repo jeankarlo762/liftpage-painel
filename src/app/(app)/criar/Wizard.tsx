@@ -8,7 +8,7 @@ import { createDraft } from "./actions";
 
 type Niche = { id: string; label: string; locked: boolean; unlockLabel: string };
 
-const STEPS = ["Nicho", "Tipo de site", "Modelo", "Cores", "Logo e imagens", "Seu negócio"];
+const STEPS = ["Cliente", "Nicho", "Tipo de site", "Modelo", "Cores", "Logo e imagens", "Seu negócio"];
 const PALETTES = [
   ["#1e40af", "#f59e0b", "#0f172a"],
   ["#047857", "#d1fae5", "#111827"],
@@ -42,6 +42,8 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
     sections: ["sobre", "servicos", "depoimentos", "faq", "contato"],
     extra: "",
   });
+  const [client, setClient] = useState({ name: "", domain: "", paid: "" });
+  const paidValue = parseMoney(client.paid);
   const set = <K extends keyof Briefing>(k: K, v: Briefing[K]) => setB((prev) => ({ ...prev, [k]: v }));
 
   const filtered = useMemo(
@@ -50,6 +52,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
   );
 
   const canNext = [
+    client.name.trim().length >= 2 && paidValue != null,
     !!b.niche,
     true,
     true,
@@ -62,6 +65,9 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
     setError(null);
     const fd = new FormData();
     fd.set("briefing", JSON.stringify(b));
+    fd.set("clientName", client.name);
+    fd.set("domain", client.domain);
+    fd.set("amountPaid", String(paidValue ?? ""));
     if (logo) fd.set("logo", logo);
     images.forEach((f) => fd.append("images", f));
     start(async () => {
@@ -80,7 +86,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
               onClick={() => i < step && setStep(i)}
               className={clsx(
                 "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm",
-                i === step ? "bg-brand-50 font-semibold text-brand-700" : i < step ? "text-ink-700" : "text-ink-300",
+                i === step ? "bg-brand-600/25 font-semibold text-brand-300" : i < step ? "text-ink-700" : "text-ink-300",
               )}
             >
               <span className={clsx("grid h-6 w-6 place-items-center rounded-full text-xs", i < step ? "bg-brand-600 text-white" : "border border-current")}>
@@ -94,6 +100,18 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
 
       <div className="card space-y-6">
         {step === 0 && (
+          <section className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <h2 className="text-lg font-semibold">Cliente</h2>
+              <p className="muted">Para quem é esta página e quanto o cliente pagou. Aparece em Páginas publicadas e na receita do Dashboard.</p>
+            </div>
+            <Field label="Nome do cliente *" value={client.name} onChange={(v) => setClient({ ...client, name: v })} placeholder="Ex.: Carlos Silva" />
+            <Field label="Valor pago (R$) *" value={client.paid} onChange={(v) => setClient({ ...client, paid: v })} placeholder="Ex.: 1.200,00" />
+            <Field className="sm:col-span-2" label="Domínio da página" value={client.domain} onChange={(v) => setClient({ ...client, domain: v })} placeholder="Ex.: barbeariadocarlos.com.br" />
+          </section>
+        )}
+
+        {step === 1 && (
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Qual é o nicho do negócio?</h2>
             <div className="relative">
@@ -109,7 +127,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
                   onClick={() => set("niche", n.id)}
                   className={clsx(
                     "flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm",
-                    b.niche === n.id ? "border-brand-500 bg-brand-50 font-semibold text-brand-700" : "border-linha hover:border-brand-300",
+                    b.niche === n.id ? "border-brand-500 bg-brand-600/25 font-semibold text-brand-300" : "border-linha hover:border-brand-300",
                     n.locked && "cursor-not-allowed opacity-50 hover:border-linha",
                   )}
                 >
@@ -126,7 +144,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
           </section>
         )}
 
-        {step === 1 && (
+        {step === 2 && (
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Tipo de site</h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -151,7 +169,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
                         key={s.id}
                         type="button"
                         onClick={() => set("sections", on ? b.sections.filter((x) => x !== s.id) : [...b.sections, s.id])}
-                        className={clsx("rounded-full border px-3 py-1.5 text-sm", on ? "border-brand-500 bg-brand-50 text-brand-700" : "border-linha")}
+                        className={clsx("rounded-full border px-3 py-1.5 text-sm", on ? "border-brand-500 bg-brand-600/25 text-brand-300" : "border-linha")}
                       >
                         {s.label}
                       </button>
@@ -163,7 +181,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
           </section>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Modelo</h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -174,7 +192,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
           </section>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <section className="space-y-5">
             <h2 className="text-lg font-semibold">Cores</h2>
             <div className="flex flex-wrap gap-3">
@@ -215,7 +233,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
           </section>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <section className="space-y-5">
             <h2 className="text-lg font-semibold">Logo e imagens</h2>
             <div>
@@ -229,7 +247,7 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
           </section>
         )}
 
-        {step === 5 && (
+        {step === 6 && (
           <section className="grid gap-4 sm:grid-cols-2">
             <h2 className="text-lg font-semibold sm:col-span-2">Sobre o seu negócio</h2>
             <Field label="Nome do negócio *" value={b.businessName} onChange={(v) => set("businessName", v)} />
@@ -245,9 +263,9 @@ export function Wizard({ niches, allowSections, planLabel }: { niches: Niche[]; 
           </section>
         )}
 
-        {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+        {error && <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</p>}
 
-        <div className="flex justify-between border-t border-slate-100 pt-5">
+        <div className="flex justify-between border-t border-linha pt-5">
           <button type="button" className="btn-ghost" disabled={step === 0} onClick={() => setStep(step - 1)}>Voltar</button>
           {step < STEPS.length - 1 ? (
             <button type="button" className="btn-primary" disabled={!canNext} onClick={() => setStep(step + 1)}>Continuar</button>
@@ -270,7 +288,7 @@ function Choice(p: { active: boolean; locked?: boolean; lockText?: string; onCli
       onClick={p.onClick}
       className={clsx(
         "rounded-2xl border p-4 text-left",
-        p.active ? "border-brand-500 bg-brand-50 ring-2 ring-brand-100" : "border-linha hover:border-brand-300",
+        p.active ? "border-brand-500 bg-brand-600/25 ring-2 ring-brand-600/40" : "border-linha hover:border-brand-300",
         p.locked && "cursor-not-allowed opacity-50",
       )}
     >
@@ -310,7 +328,7 @@ function FilePick(p: { accept: string; multiple?: boolean; files: File[]; onFile
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={URL.createObjectURL(f)} alt={f.name} className="h-20 w-20 rounded-xl border border-linha object-cover" />
               {p.onRemove && (
-                <button type="button" onClick={() => p.onRemove!(i)} className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-ink-900 text-xs text-white">×</button>
+                <button type="button" onClick={() => p.onRemove!(i)} className="absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-black text-xs text-white">×</button>
               )}
             </div>
           ))}
@@ -318,4 +336,12 @@ function FilePick(p: { accept: string; multiple?: boolean; files: File[]; onFile
       )}
     </div>
   );
+}
+
+// Aceita "1.200,50", "1200.50" ou "1200".
+function parseMoney(v: string): number | null {
+  const t = v.replace(/[R$\s]/g, "");
+  if (!t) return null;
+  const n = Number(t.includes(",") ? t.replace(/\./g, "").replace(",", ".") : t);
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null;
 }

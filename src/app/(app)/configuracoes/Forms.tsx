@@ -11,8 +11,8 @@ export function TokenForm({ provider, placeholder }: { provider: "github" | "rai
         <input className="input" name="token" type="password" placeholder={placeholder} autoComplete="off" />
         <button className="btn-ghost shrink-0" disabled={pending}>{pending ? "Validando…" : "Salvar"}</button>
       </div>
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state?.ok && <p className="text-sm text-emerald-700">{state.ok}</p>}
+      {state?.error && <p className="text-sm text-red-300">{state.error}</p>}
+      {state?.ok && <p className="text-sm text-emerald-300">{state.ok}</p>}
     </form>
   );
 }
@@ -20,7 +20,7 @@ export function TokenForm({ provider, placeholder }: { provider: "github" | "rai
 export function DisconnectButton({ provider }: { provider: string }) {
   const [pending, start] = useTransition();
   return (
-    <button className="text-sm font-medium text-red-600 hover:underline" disabled={pending} onClick={() => start(() => disconnect(provider))}>
+    <button className="text-sm font-medium text-red-300 hover:underline" disabled={pending} onClick={() => start(() => disconnect(provider))}>
       Desconectar
     </button>
   );

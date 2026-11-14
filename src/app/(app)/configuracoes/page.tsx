@@ -20,8 +20,8 @@ export default async function ConfiguracoesPage({ searchParams }: { searchParams
           {plan.autoHosting && " No Premium a hospedagem é automática; conectar suas contas é opcional."}
         </p>
       </div>
-      {sp.github === "ok" && <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">GitHub conectado.</p>}
-      {sp.github === "erro" && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">Não foi possível conectar o GitHub. Tente de novo.</p>}
+      {sp.github === "ok" && <p className="rounded-xl bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">GitHub conectado.</p>}
+      {sp.github === "erro" && <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300">Não foi possível conectar o GitHub. Tente de novo.</p>}
 
       <div className="card space-y-4">
         <div className="flex items-center justify-between">

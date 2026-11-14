@@ -31,6 +31,13 @@ export async function createDraft(form: FormData): Promise<{ error: string } | v
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const b = parsed.data;
 
+  const clientName = String(form.get("clientName") ?? "").trim();
+  const amountPaid = Number(form.get("amountPaid"));
+  const domain = String(form.get("domain") ?? "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  if (clientName.length < 2) return { error: "Informe o nome do cliente" };
+  if (!String(form.get("amountPaid") ?? "") || !Number.isFinite(amountPaid) || amountPaid < 0 || amountPaid > 10_000_000) return { error: "Informe quanto o cliente pagou" };
+  if (domain && !/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(domain)) return { error: "Domínio inválido. Use algo como meusite.com.br" };
+
   // Limites do plano, conferidos no servidor.
   if (!isNicheAllowed(user.plan, b.niche)) return { error: `Esse nicho não está incluído no plano ${plan.label}.` };
   if (b.siteType === "SECTIONS" && !plan.sections) return { error: "Sites com sessões estão disponíveis a partir do plano Pro." };
@@ -53,6 +60,9 @@ export async function createDraft(form: FormData): Promise<{ error: string } | v
     data: {
       userId: user.id,
       name: b.businessName,
+      clientName,
+      domain: domain || null,
+      amountPaid,
       slug,
       niche: b.niche,
       siteType: b.siteType,
