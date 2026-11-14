@@ -6,7 +6,8 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { hasActiveAccess, planFeatures } from "@/lib/plans";
 import { extractHtml } from "@/lib/services/generator";
-import { publishPage } from "@/lib/services/pipeline";
+import { agentConfigured } from "@/lib/services/generator";
+import { hostingCredentials, publishPage } from "@/lib/services/pipeline";
 
 async function ownedPage(pageId: string) {
   const user = await requireUser();
@@ -28,8 +29,11 @@ export async function publishWithAgent(pageId: string): Promise<{ error?: string
   const { user, page } = await ownedPage(pageId);
   if (!hasActiveAccess(user.subscription)) return { error: "Seu acesso não está ativo. Veja a tela Assinatura." };
   if (!planFeatures(user.plan).agent) return { error: "O agente de criação está disponível no plano Premium." };
+  if (!agentConfigured()) return { error: "O agente de criação ainda não foi configurado pela LiftPage. Fale com o suporte." };
   if (BUSY.includes(page.status)) return { error: "Essa página já está sendo publicada." };
   if (page.repoUrl) return { error: "Essa página já foi publicada." };
+  const ready = await readyToPublish(user.id, planFeatures(user.plan).autoHosting);
+  if (ready) return { error: ready };
   await db.page.update({ where: { id: pageId }, data: { status: "GENERATING", error: null, statusLog: null } });
   after(() => publishPage(pageId));
   revalidatePath(`/paginas/${pageId}`);
@@ -42,6 +46,8 @@ export async function publishPasted(pageId: string, html: string): Promise<{ err
   if (!hasActiveAccess(user.subscription)) return { error: "Seu acesso não está ativo. Veja a tela Assinatura." };
   if (BUSY.includes(page.status)) return { error: "Essa página já está sendo publicada." };
   if (page.repoUrl) return { error: "Essa página já foi publicada." };
+  const ready = await readyToPublish(user.id, planFeatures(user.plan).autoHosting);
+  if (ready) return { error: ready };
   try {
     extractHtml(html);
   } catch (e) {
@@ -58,4 +64,14 @@ export async function deleteDraft(pageId: string) {
   if (page.status !== "DRAFT" && page.status !== "FAILED") throw new Error("Só é possível excluir rascunhos ou páginas com erro");
   await db.page.delete({ where: { id: pageId } });
   revalidatePath("/paginas");
+}
+
+// Confere as contas de publicação antes de começar, para o erro aparecer na hora.
+async function readyToPublish(userId: string, autoHosting: boolean) {
+  try {
+    await hostingCredentials(userId, autoHosting);
+    return null;
+  } catch (e) {
+    return (e as Error).message;
+  }
 }

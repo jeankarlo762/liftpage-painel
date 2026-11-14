@@ -7,8 +7,13 @@ export type GenImage = { publicPath: string; mimeType: string; data: Buffer };
 
 export class GenerationError extends Error {}
 
+export function agentConfigured() {
+  return !!(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+}
+
 // Agente de criação (plano Premium): gera o index.html a partir do prompt e das imagens enviadas.
 export async function generateLandingHtml(prompt: string, images: GenImage[]) {
+  if (!agentConfigured()) throw new GenerationError("O agente de criação ainda não foi configurado pela LiftPage. Fale com o suporte.");
   const client = new Anthropic();
   const model = process.env.CLAUDE_MODEL || "claude-opus-5-5";
 
@@ -33,7 +38,15 @@ export async function generateLandingHtml(prompt: string, images: GenImage[]) {
     fallbacks: "default",
     messages: [{ role: "user", content }],
   });
-  const msg = await stream.finalMessage();
+  const msg = await stream.finalMessage().catch((e: unknown) => {
+    if (e instanceof Anthropic.AuthenticationError || e instanceof Anthropic.PermissionDeniedError) {
+      throw new GenerationError("A chave do agente de criação foi recusada. Fale com o suporte.");
+    }
+    if (e instanceof Anthropic.RateLimitError || e instanceof Anthropic.InternalServerError) {
+      throw new GenerationError("O agente está ocupado agora. Tente de novo em alguns minutos.");
+    }
+    throw e;
+  });
 
   if (msg.stop_reason === "refusal") throw new GenerationError("O modelo recusou o pedido. Revise o conteúdo do briefing.");
   if (msg.stop_reason === "max_tokens") throw new GenerationError("A página ficou grande demais e foi cortada. Tente reduzir as sessões.");
